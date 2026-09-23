@@ -1,5 +1,8 @@
 # Catalog Sync API
 
+**Live demo:** https://catalog-sync-api.onrender.com (free tier — sleeps after
+15 min idle, first request after that takes ~30-50s to wake up)
+
 Pulls products from a VTEX store's **public** Catalog API, stores them locally, and
 exposes them through a small REST API. Built as a portfolio piece to show a real
 VTEX integration end to end: outbound HTTP client, persistence, REST layer, tests.
