@@ -58,8 +58,41 @@ mvn test
 network calls). `CatalogSyncApplicationTests` is a context-load smoke test that
 catches datasource/JPA/RestClient wiring breakage.
 
+## Run with Docker
+
+```bash
+docker compose up --build
+```
+
+Builds the image (multi-stage: Maven+JDK to compile, slim JRE to run) and starts
+it alongside a real Postgres container. Same app, same `postgres` profile used in
+production — this is what actually gets deployed.
+
+## Deploy (Render free tier)
+
+```
+┌──────────────┐   push    ┌────────────────┐   JDBC    ┌──────────────────┐
+│ GitHub repo   │ ────────▶ │ Render Web      │ ────────▶ │ Render Postgres   │
+│ (Dockerfile)  │  builds   │ Service (free)  │           │ (free tier)       │
+└──────────────┘   image   └────────────────┘           └──────────────────┘
+```
+
+1. Push this repo to GitHub (see the portfolio series root for the `gh repo create` command).
+2. On [render.com](https://render.com): **New +** → **PostgreSQL** → free plan → name it
+   `catalog-sync-db` → create. Copy **Host**, **Port**, **Database**, **User**, **Password**
+   from its Info tab.
+3. **New +** → **Web Service** → connect the GitHub repo → Environment: **Docker** → plan: **Free**.
+4. Add environment variables:
+   - `SPRING_PROFILES_ACTIVE=postgres`
+   - `DB_URL=jdbc:postgresql://<host>:<port>/<database>`
+   - `DB_USER=<user>`
+   - `DB_PASSWORD=<password>`
+5. Deploy. Render builds the `Dockerfile` and starts the service. Free web services
+   sleep after 15 min idle and take ~30s to wake on the next request — expected
+   behavior for a portfolio demo link, not a bug.
+
 ## Next steps (portfolio series)
 
 1. **Catalog Sync API** (this repo)
 2. Order Webhook Receiver — simulated order webhooks, HMAC signature validation
-3. Dockerize + deploy to a cloud free tier
+3. **Dockerize + deploy to a cloud free tier** (this repo's `Dockerfile` / `docker-compose.yml`)
